@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,25 +15,58 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
-  username: z.string().min(2,{message:"Username must be atleast 2 characters"}),
-  email: z.string().min({message:"Invalid Email Address"}),
-  password: z.string().min(8,{message:"Password must be atleast 8 characters"}),
+  username: z
+    .string()
+    .min(2, { message: "Username must be atleast 2 characters" }),
+  email: z.string().min({ message: "Invalid Email Address" }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be atleast 8 characters" }),
 });
 
 const SignupForm = () => {
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
-      email:"",
-      password:"",
+      email: "",
+      password: "",
     },
   });
 
-  function onSubmit(values) {
-    console.log(values);
+  async function onSubmit(values) {
+    try {
+      setLoading(true);
+      setErrorMessage(null);
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        setLoading(false);
+        toast({ title: "Sign up failed!Please try again!" });
+        return setErrorMessage(data.message);
+      }
+      setLoading(false);
+      if (res.ok) {
+        toast({ title: "Sign up successfull!" });
+        navigate("/sign-in");
+      }
+    } catch (error) {
+      setErrorMessage(error.message);
+      setLoading(false);
+      toast({ title: "Something went wrong!" });
+    }
   }
 
   return (
@@ -72,20 +105,24 @@ const SignupForm = () => {
                   </FormItem>
                 )}
               />
-               <FormField
+              <FormField
                 control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="xyz@gmail.com" {...field} />
+                      <Input
+                        type="email"
+                        placeholder="xyz@gmail.com"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-               <FormField
+              <FormField
                 control={form.control}
                 name="password"
                 render={({ field }) => (
@@ -98,12 +135,25 @@ const SignupForm = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="bg-blue-500 w-full">Submit</Button>
+              <Button type="submit" className="bg-blue-500 w-full" disable={loading} >
+                {loading ? (
+                  <span className="animate-pulse">Loading...</span>
+                ) : (
+                  <span>Sign Up</span>
+                )}
+              </Button>
+
+              {errorMessage && <p className="mt-5 text-red-500">{errorMessage}</p>}
+
+
+
             </form>
           </Form>
           <div className="flex gap-2 text-sm mt-5">
             <span>Have an account?</span>
-            <Link to={"/sign-in"} className="text-blue-500">Sign In</Link>
+            <Link to={"/sign-in"} className="text-blue-500">
+              Sign In
+            </Link>
           </div>
         </div>
       </div>
