@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import GoogleAuth from "@/components/shared/GoogleAuth";
 
 const formSchema = z.object({
   username: z
@@ -142,6 +143,7 @@ const SignupForm = () => {
                   <span>Sign Up</span>
                 )}
               </Button>
+              <GoogleAuth/>
 
               {errorMessage && <p className="mt-5 text-red-500">{errorMessage}</p>}
 

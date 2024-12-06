@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { signInFaliure, signInStart, signInSuccess } from "@/redux/user/userSlice";
+import GoogleAuth from "@/components/shared/GoogleAuth";
 
 const formSchema = z.object({
 
@@ -126,6 +127,7 @@ const SigninForm = () => {
                   <span>Sign In</span>
                 )}
               </Button>
+              <GoogleAuth/>
 
               {errorMessage && <p className="mt-5 text-red-500">{errorMessage}</p>}
 
