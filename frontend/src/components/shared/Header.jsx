@@ -14,7 +14,6 @@ import {
 
 const Header = () => {
   const { currentUser } = useSelector((state) => state.user);
-  console.log(currentUser);
   return (
     <header className="shadow-lg sticky">
       <div className="flex justify-between items-center max-w-6xl lg:max-w-7xl mx-auto p-4">
