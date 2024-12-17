@@ -11,11 +11,22 @@ import {
   deleteUserStart,
   deleteUserFaliure,
   deleteUserSuccess,
+  signoutSuccess,
 } from "@/redux/user/userSlice";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 
 const DashboardProfile = () => {
-  const { currentUser,error } = useSelector((state) => state.user);
+  const { currentUser, error } = useSelector((state) => state.user);
   const profilePicRef = useRef();
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -88,24 +99,40 @@ const DashboardProfile = () => {
       console.error(error);
     }
   };
-const handleDeleteUser=async()=>{
-  try {
-    dispatch(deleteUserStart())
+  const handleDeleteUser = async () => {
+    try {
+      dispatch(deleteUserStart());
 
-    const res=await fetch(`/api/user/delete/${currentUser._id}`,{
-      method:"DELETE",
-    })
-    const data=await res.json();
-    if(!res.ok){
-      dispatch(deleteUserFaliure(data.message))
-    }else{
-      dispatch(deleteUserSuccess());
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        dispatch(deleteUserFaliure(data.message));
+      } else {
+        dispatch(deleteUserSuccess());
+      }
+    } catch (error) {
+      console.log(error);
+      dispatch(deleteUserFaliure(error.message));
     }
-  } catch (error) {
-    console.log(error);
-    dispatch(deleteUserFaliure(error.message))
+  };
+  const handleSignOut=async()=>{
+    try {
+      const res =await fetch("/api/user/signout",{
+        method:"POST"
+      })
+      const data=await res.json();
+      if(!res.ok){
+        console.log(data.message)
+      }else{
+        dispatch(signoutSuccess());
+      }
+    } catch (error) {
+      console.log(error);
+      
+    }
   }
-}
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
       <h1 className="my-7 text-center font-semibold text-3xl">
@@ -172,11 +199,16 @@ const handleDeleteUser=async()=>{
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction className="bg-red-600" onClick={handleDeleteUser}>Continue</AlertDialogAction>
+              <AlertDialogAction
+                className="bg-red-600"
+                onClick={handleDeleteUser}
+              >
+                Continue
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        <Button variant="ghost">Sign Out</Button>
+        <Button variant="ghost" onClick={handleSignOut}>Sign Out</Button>
       </div>
       <p className="text-red-600">{error}</p>
     </div>
