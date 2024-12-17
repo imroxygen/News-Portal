@@ -4,13 +4,21 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { getFilePreview, uploadFile } from "@/lib/appwrite/uploadImage";
-import { updateStart,updateFaliure, updateSuccess } from "@/redux/user/userSlice";
+import {
+  updateStart,
+  updateFaliure,
+  updateSuccess,
+  deleteUserStart,
+  deleteUserFaliure,
+  deleteUserSuccess,
+} from "@/redux/user/userSlice";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
 
 const DashboardProfile = () => {
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser,error } = useSelector((state) => state.user);
   const profilePicRef = useRef();
   const dispatch = useDispatch();
-const {toast} = useToast();
+  const { toast } = useToast();
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [formData, setFormData] = useState({});
@@ -67,12 +75,12 @@ const {toast} = useToast();
 
       const data = await res.json();
 
-      if (data.success===false) {
+      if (data.success === false) {
         toast({ title: "Update failed. Please try again." });
         dispatch(updateFaliure(data.message));
       } else {
         toast({ title: "User updated successfully!" });
-        dispatch(updateSuccess(data,));
+        dispatch(updateSuccess(data));
       }
     } catch (error) {
       toast({ title: "Update failed. Please try again." });
@@ -80,7 +88,24 @@ const {toast} = useToast();
       console.error(error);
     }
   };
+const handleDeleteUser=async()=>{
+  try {
+    dispatch(deleteUserStart())
 
+    const res=await fetch(`/api/user/delete/${currentUser._id}`,{
+      method:"DELETE",
+    })
+    const data=await res.json();
+    if(!res.ok){
+      dispatch(deleteUserFaliure(data.message))
+    }else{
+      dispatch(deleteUserSuccess());
+    }
+  } catch (error) {
+    console.log(error);
+    dispatch(deleteUserFaliure(error.message))
+  }
+}
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
       <h1 className="my-7 text-center font-semibold text-3xl">
@@ -96,7 +121,9 @@ const {toast} = useToast();
         />
         <div className="w-32 h-32 self-center cursor-pointer overflow-hidden">
           <img
-            src={imageUrl || currentUser.profilePicture || "/default-profile.png"}
+            src={
+              imageUrl || currentUser.profilePicture || "/default-profile.png"
+            }
             alt="user profile"
             className="rounded-full w-full h-full object-cover border-8 border-gray-300"
             onClick={() => profilePicRef.current.click()}
@@ -131,9 +158,27 @@ const {toast} = useToast();
         </Button>
       </form>
       <div className="text-red-500 flex justify-between mt-5">
-        <span className="cursor-pointer">Delete Account</span>
-        <span className="cursor-pointer">Sign Out</span>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="ghost">Delete Account</Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete your
+                account and remove your data from our servers.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction className="bg-red-600" onClick={handleDeleteUser}>Continue</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        <Button variant="ghost">Sign Out</Button>
       </div>
+      <p className="text-red-600">{error}</p>
     </div>
   );
 };
