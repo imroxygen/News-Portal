@@ -1,4 +1,4 @@
-import { ImageGravity } from "appwrite";
+import { ID, ImageGravity } from "appwrite";
 import { appwriteConfig, storage } from "./config";
 
 
