@@ -17,6 +17,10 @@ const userSchema=new mongoose.Schema({
     profilePicture:{
         type:String,
         default:"https://cdn-icons-png.flaticon.com/128/3177/3177440.png"
+    },
+    isAdmin:{
+        type:Boolean,
+        default:false,
     }
 
 },{timestamps:true});
