@@ -4,5 +4,5 @@ import {verifyToken} from "../utils/verifyUser.js"
 const router=express.Router();
 
 router.post("/create",verifyToken,create)
-router.get("/getPost",getPosts)
+router.get("/getpost",getPosts)
 export default router;
