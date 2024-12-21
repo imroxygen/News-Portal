@@ -2,6 +2,7 @@ import BottomNavBar from '@/components/shared/BottomNavBar';
 import DashboardPost from '@/components/shared/DashboardPost';
 import DashboardProfile from '@/components/shared/DashboardProfile';
 import DashboardSidebar from '@/components/shared/DashboardSidebar'
+import DashboardUser from '@/components/shared/DashboardUser';
 import React, { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
@@ -27,6 +28,7 @@ const Dashboard = () => {
       <div className='w-full' >
         {tab==="profile" && <DashboardProfile/>}
         {tab==="posts" && <DashboardPost/>}
+        {tab==="users" && <DashboardUser/> }
       </div>
 
     </div>
