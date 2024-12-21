@@ -1,3 +1,5 @@
+import Advertise from "@/components/shared/Advertise";
+import CommentSection from "@/components/shared/CommentSection";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import React, { useState } from "react";
@@ -9,7 +11,7 @@ const PostDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [post, setPost] = useState(null);
-  console.log(post);
+  
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -76,6 +78,10 @@ const PostDetails = () => {
         className="p-3 max-w-3xl mx-auto w-full post-content"
         dangerouslySetInnerHTML={{ __html: post && post.content }}
       ></div>
+      <div className="max-w-4xl mx-auto w-full">
+        <Advertise/>
+      </div>
+      <CommentSection postId={post._id} />
     </main>
   );
 };
