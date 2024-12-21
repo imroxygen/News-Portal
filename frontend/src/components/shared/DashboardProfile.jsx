@@ -26,7 +26,7 @@ import {
 } from "../ui/alert-dialog";
 
 const DashboardProfile = () => {
-  const { currentUser, error,loading } = useSelector((state) => state.user);
+  const { currentUser, error, loading } = useSelector((state) => state.user);
   const profilePicRef = useRef();
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -117,22 +117,21 @@ const DashboardProfile = () => {
       dispatch(deleteUserFaliure(error.message));
     }
   };
-  const handleSignOut=async()=>{
+  const handleSignOut = async () => {
     try {
-      const res =await fetch("/api/user/signout",{
-        method:"POST"
-      })
-      const data=await res.json();
-      if(!res.ok){
-        console.log(data.message)
-      }else{
+      const res = await fetch("/api/user/signout", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.log(data.message);
+      } else {
         dispatch(signoutSuccess());
       }
     } catch (error) {
       console.log(error);
-      
     }
-  }
+  };
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
       <h1 className="my-7 text-center font-semibold text-3xl">
@@ -181,7 +180,7 @@ const DashboardProfile = () => {
           onChange={handleChange}
         />
         <Button type="submit" className="h-12 bg-green-600" disabled={loading}>
-          {loading ? "Loading...":"Update Profile"}
+          {loading ? "Loading..." : "Update Profile"}
         </Button>
       </form>
       <div className="text-red-500 flex justify-between mt-5">
@@ -208,7 +207,9 @@ const DashboardProfile = () => {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        <Button variant="ghost" onClick={handleSignOut}>Sign Out</Button>
+        <Button variant="ghost" onClick={handleSignOut}>
+          Sign Out
+        </Button>
       </div>
       <p className="text-red-600">{error}</p>
     </div>

@@ -10,10 +10,14 @@ import {
   TableRow,
 } from "../ui/table";
 import { Link } from "react-router-dom";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
+import { Button } from "../ui/button";
 
 const DashboardPost = () => {
   const { currentUser } = useSelector((state) => state.user);
   const [userPosts, setUserPosts] = useState([]);
+  const [showMore, setShowMore] = useState(true);
+  const [postIdToDelete,setPostIdToDelete]=useState("");
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -23,6 +27,9 @@ const DashboardPost = () => {
 
         if (res.ok) {
           setUserPosts(data.posts);
+          if (data.posts.length < 9) {
+            setShowMore(false);
+          }
         }
       } catch (error) {
         console.log(error);
@@ -33,7 +40,42 @@ const DashboardPost = () => {
       fetchPost();
     }
   }, [currentUser._id]);
+  const handleShowMore = async () => {
+    const startIndex = userPosts.length;
+    try {
+      const res = await fetch(
+        `/api/post/getpost?userId=${currentUser._id}&startIndex=${startIndex}`
+      );
+      const data = await res.json();
 
+      if (res.ok) {
+        setUserPosts((prev) => [...prev, ...data.posts]);
+        if (data.posts.length < 9) {
+          setShowMore(false);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleDeletePost=async()=>{
+    try {
+      const res=await fetch(`/api/post/deletepost/${postIdToDelete}/${currentUser._id}`,{
+        method:"DELETE"
+      })
+      
+      const data=await res.json();
+      if(!res.ok){
+        console.log(data.message);
+      }else{
+        setUserPosts((prev)=>prev.filter((post)=>post._id !== postIdToDelete))
+      }
+    } catch (error) {
+      console.log(error);
+      
+    }
+    
+  }
   return (
     <div className="flex flex-col items-center justify-center w-full p-3">
       {currentUser.isAdmin && userPosts.length > 0 ? (
@@ -52,8 +94,8 @@ const DashboardPost = () => {
             </TableHeader>
 
             {userPosts.map((post) => (
-              <TableBody className="divide-y">
-                <TableRow key={post._id}>
+              <TableBody className="divide-y" key={post._id}>
+                <TableRow >
                   <TableCell>
                     {new Date(post.updatedAt).toLocaleDateString()}
                   </TableCell>
@@ -72,9 +114,35 @@ const DashboardPost = () => {
                   </TableCell>
                   <TableCell>{post.category}</TableCell>
                   <TableCell>
-                    <span className="font-medium text-red-500 hover:underline cursor-pointer">
+                    {/* <span className="font-medium text-red-500 hover:underline cursor-pointer">
                       Delete
-                    </span>
+                    </span> */}
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <span className="font-medium text-red-500 hover:underline cursor-pointer" onClick={()=>{setPostIdToDelete(post._id)}} >Delete</span>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Are you absolutely sure?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently
+                            delete your post and remove your data from our
+                            servers.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-red-600"
+                            onClick={handleDeletePost}
+                          >
+                            Continue
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </TableCell>
                   <TableCell>
                     <Link
@@ -88,6 +156,14 @@ const DashboardPost = () => {
               </TableBody>
             ))}
           </Table>
+          {showMore && (
+            <button
+              onClick={handleShowMore}
+              className="w-full text-blue-700 self-center text-sm py-7"
+            >
+              Show More
+            </button>
+          )}
         </>
       ) : (
         <p>You have no post yet</p>
