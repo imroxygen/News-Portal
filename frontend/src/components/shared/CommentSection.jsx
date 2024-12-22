@@ -1,16 +1,45 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { useToast } from "@/hooks/use-toast";
 import Comment from "./Comment";
 
 const CommentSection = ({ postId }) => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { currentUser } = useSelector((state) => state.user);
   const [comment, setComment] = useState("");
   const [allComments, setAllComments] = useState([]);
+
+  const handleLike = async (commentId) => {
+    try {
+      if (!currentUser) {
+        navigate("/sign-in");
+        return;
+      }
+      const res = await fetch(`/api/comment/likecomment/${commentId}`, {
+        method: "PUT",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAllComments(
+          allComments.map((comment) =>
+            comment._id === commentId
+              ? {
+                  ...comment,
+                  likes: data.likes,
+                  numberOfLikes: data.likes.length,
+                }
+              : comment
+          )
+        );
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   useEffect(() => {
     const getComments = async () => {
@@ -56,7 +85,7 @@ const CommentSection = ({ postId }) => {
       if (res.ok) {
         toast({ title: "Comment added successfully!" });
         setComment(""); // Clear the input
-        setAllComments([data,...allComments])
+        setAllComments([data, ...allComments]);
       } else {
         toast({ title: data.message || "Failed to add comment!" });
       }
@@ -123,7 +152,9 @@ const CommentSection = ({ postId }) => {
             </div>
           </div>
 
-          {allComments.map((comment)=>(<Comment key={comment._id} comment={comment}/>))}
+          {allComments.map((comment) => (
+            <Comment key={comment._id} comment={comment} onLike={handleLike} />
+          ))}
         </>
       )}
     </div>
