@@ -1,14 +1,32 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { useToast } from "@/hooks/use-toast";
+import Comment from "./Comment";
 
 const CommentSection = ({ postId }) => {
   const { toast } = useToast();
   const { currentUser } = useSelector((state) => state.user);
   const [comment, setComment] = useState("");
+  const [allComments, setAllComments] = useState([]);
+
+  useEffect(() => {
+    const getComments = async () => {
+      try {
+        const res = await fetch(`/api/comment/getPostComments/${postId}`);
+        const data = await res.json();
+        if (res.ok) {
+          setAllComments(data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getComments();
+  }, [postId]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -38,6 +56,7 @@ const CommentSection = ({ postId }) => {
       if (res.ok) {
         toast({ title: "Comment added successfully!" });
         setComment(""); // Clear the input
+        setAllComments([data,...allComments])
       } else {
         toast({ title: data.message || "Failed to add comment!" });
       }
@@ -92,6 +111,20 @@ const CommentSection = ({ postId }) => {
             <Button type="submit">Submit</Button>
           </div>
         </form>
+      )}
+      {allComments.length === 0 ? (
+        <p className="text-sm my-5">No Comments yes</p>
+      ) : (
+        <>
+          <div className="text-sm my-5 flex items-center gap-1 font-semibold">
+            <p>Comments</p>
+            <div className="border border-gray-400 py-1 px-2 rounded-sm">
+              {allComments.length}
+            </div>
+          </div>
+
+          {allComments.map((comment)=>(<Comment key={comment._id} comment={comment}/>))}
+        </>
       )}
     </div>
   );
