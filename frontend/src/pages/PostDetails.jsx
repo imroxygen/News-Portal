@@ -1,5 +1,6 @@
 import Advertise from "@/components/shared/Advertise";
 import CommentSection from "@/components/shared/CommentSection";
+import PostCard from "@/components/shared/PostCard";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import React, { useState } from "react";
@@ -11,7 +12,7 @@ const PostDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [post, setPost] = useState(null);
-  
+  const [recentArticle, setRecentArticle] = useState(null);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -36,6 +37,21 @@ const PostDetails = () => {
     };
     fetchPost();
   }, [postSlug]);
+  useEffect(() => {
+    try {
+      const fetchRecentPost = async () => {
+        const res = await fetch(`/api/post/getpost?limit=3`);
+        const data = await res.json();
+
+        if (res.ok) {
+          setRecentArticle(data.posts);
+        }
+      };
+      fetchRecentPost();
+    } catch (error) {
+      console.log(error.message);
+    }
+  }, []);
 
   if (loading) {
     return (
@@ -79,9 +95,19 @@ const PostDetails = () => {
         dangerouslySetInnerHTML={{ __html: post && post.content }}
       ></div>
       <div className="max-w-4xl mx-auto w-full">
-        <Advertise/>
+        <Advertise />
       </div>
       <CommentSection postId={post._id} />
+      <div className="flex flex-col justify-center items-center mb-5">
+        <h1 className="text-xl font-semibold mt-5 text-slate-700">
+          Recently published articles
+        </h1>
+        <div className="flex flex-wrap gap-5 my-5 justify-center">
+          {recentArticle&&recentArticle.map((post)=>(
+            <PostCard key={post._id} post={post} />
+          ))}
+        </div>
+      </div>
     </main>
   );
 };
