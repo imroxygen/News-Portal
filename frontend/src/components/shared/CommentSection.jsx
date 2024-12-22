@@ -94,7 +94,31 @@ const CommentSection = ({ postId }) => {
       toast({ title: "Something went wrong! Please try again!" });
     }
   };
-
+  const handleEdit = async (comment, editedContent) => {
+    setAllComments(
+      allComments.map((c) =>
+        c._id === comment._id ? { ...c, content: editedContent } : c
+      )
+    );
+  };
+  const handleDelete=async(commentId)=>{
+    try {
+      if(!currentUser){
+        navigate("/sign-in")
+        return
+      }
+      const res=await fetch(`/api/comment/deletecomment/${commentId}`,{
+        method:"DELETE",
+      })
+      if(res.ok){
+        const data=await res.json()
+        setAllComments(allComments.filter((comment)=>comment._id !== commentId))
+      }
+    } catch (error) {
+      console.log(error);
+      
+    }
+  }
   return (
     <div className="max-w-3xl mx-auto w-full p-3">
       {currentUser ? (
@@ -153,7 +177,13 @@ const CommentSection = ({ postId }) => {
           </div>
 
           {allComments.map((comment) => (
-            <Comment key={comment._id} comment={comment} onLike={handleLike} />
+            <Comment
+              key={comment._id}
+              comment={comment}
+              onLike={handleLike}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           ))}
         </>
       )}
