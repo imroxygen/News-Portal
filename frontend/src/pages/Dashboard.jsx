@@ -1,3 +1,4 @@
+import AdminDashboard from '@/components/shared/AdminDashboard';
 import BottomNavBar from '@/components/shared/BottomNavBar';
 import DashboardComments from '@/components/shared/DashboardComments';
 import DashboardPost from '@/components/shared/DashboardPost';
@@ -31,6 +32,7 @@ const Dashboard = () => {
         {tab==="posts" && <DashboardPost/>}
         {tab==="users" && <DashboardUser/> }
         {tab==="comments" && <DashboardComments/>}
+        {tab==="dashboard" && <AdminDashboard/>}
       </div>
 
     </div>
