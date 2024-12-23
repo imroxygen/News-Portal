@@ -108,7 +108,7 @@ const CreatePost = () => {
               <SelectGroup>
                 <SelectLabel>Category</SelectLabel>
                 <SelectItem value="worldnews">World News</SelectItem>
-                <SelectItem value="sprotsnews">Sprots News</SelectItem>
+                <SelectItem value="sportsnews">Sprots News</SelectItem>
                 <SelectItem value="localnews">Local News</SelectItem>
               </SelectGroup>
             </SelectContent>

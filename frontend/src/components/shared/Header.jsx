@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,24 +15,45 @@ import { signoutSuccess } from "@/redux/user/userSlice";
 
 const Header = () => {
   const { currentUser } = useSelector((state) => state.user);
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate=useNavigate()
+  const [searchTerm, setSearchTerm] = useState("");
 
-    const handleSignOut=async()=>{
-      try {
-        const res =await fetch("/api/user/signout",{
-          method:"POST"
-        })
-        const data=await res.json();
-        if(!res.ok){
-          console.log(data.message)
-        }else{
-          dispatch(signoutSuccess());
-        }
-      } catch (error) {
-        console.log(error);
-        
-      }
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const searchTermFromUrl = urlParams.get("searchTerm");
+    if (searchTermFromUrl) {
+      setSearchTerm(searchTermFromUrl);
     }
+  }, [location.search]);
+
+  const handleSignOut = async () => {
+    try {
+      const res = await fetch("/api/user/signout", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.log(data.message);
+      } else {
+        dispatch(signoutSuccess());
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const urlParams = new URLSearchParams(location.search);
+    urlParams.set("searchTerm", searchTerm);
+
+    const searchQuery = urlParams.toString();
+
+    navigate(`/search?${searchQuery}`);
+  };
   return (
     <header className="shadow-lg sticky">
       <div className="flex justify-between items-center max-w-6xl lg:max-w-7xl mx-auto p-4">
@@ -42,13 +63,20 @@ const Header = () => {
             <span className="text-slate-900">News</span>
           </h1>
         </Link>
-        <form className="p-3 bg-slate-100 rounded-lg flex items-center">
+        <form
+          className="p-3 bg-slate-100 rounded-lg flex items-center"
+          onSubmit={handleSubmit}
+        >
           <input
             type="text"
             placeholder="Search..."
             className="focus:outline-none bg-transparent w-24 sm:w-64"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <FaSearch className="text-slate-600" />
+           <button>
+            <FaSearch className="text-slate-600" />
+          </button>
         </form>
 
         <ul className="flex gap-4">
@@ -73,7 +101,11 @@ const Header = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div>
-                <img src={currentUser.profilePicture} alt="user profile" className="w-10 h-10 rounded-full" />
+                <img
+                  src={currentUser.profilePicture}
+                  alt="user profile"
+                  className="w-10 h-10 rounded-full"
+                />
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-60">
@@ -89,7 +121,12 @@ const Header = () => {
               <DropdownMenuItem className="font-semibold mt-2">
                 <Link to="/dashboard?tab=profile">Profile</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="font-semibold mt-2" onClick={handleSignOut}>Sign Out</DropdownMenuItem>
+              <DropdownMenuItem
+                className="font-semibold mt-2"
+                onClick={handleSignOut}
+              >
+                Sign Out
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (

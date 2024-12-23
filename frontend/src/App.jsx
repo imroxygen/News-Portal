@@ -5,7 +5,6 @@ import SigninForm from "./auth/forms/SigninForm";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Dashboard from "./pages/Dashboard";
-import NewsArticles from "./pages/NewsArticles";
 import Header from "./components/shared/Header";
 import { Toaster } from "@/components/ui/toaster";
 import Footer from "./components/shared/Footer";
@@ -15,6 +14,7 @@ import AdminPrivateRoute from "./components/shared/AdminPrivateRoute";
 import EditPost from "./pages/EditPost";
 import PostDetails from "./pages/PostDetails";
 import ScrollToTop from "./components/shared/ScrollToTop";
+import Search from "./pages/Search";
 
 const App = () => {
   return (
@@ -26,6 +26,7 @@ const App = () => {
         <Route path="/sign-in" element={<SigninForm />} />
 
         <Route path="/" element={<Home />} />
+        <Route path="/search" element={<Search />} />
         <Route path="/about" element={<About />} />
 
         <Route element={<PrivateRoute/>} >
@@ -36,7 +37,7 @@ const App = () => {
           <Route path="/update-post/:postId" element={<EditPost/>} />
         </Route>
 
-        <Route path="/news" element={<NewsArticles />} />
+        <Route path="/news" element={<Search />} />
         <Route path="/post/:postSlug" element={<PostDetails />} />
       </Routes>
       <Footer />
