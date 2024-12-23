@@ -1,6 +1,6 @@
 import { signoutSuccess } from "@/redux/user/userSlice";
 import React from "react";
-import { FaSignOutAlt, FaUserAlt, FaUsers } from "react-icons/fa";
+import { FaComment, FaSignOutAlt, FaUserAlt, FaUsers } from "react-icons/fa";
 import { IoIosCreate, IoIosDocument } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -70,6 +70,17 @@ const DashboardSidebar = () => {
               >
                 <FaUsers  className="mr-3" />
                 <span>All Users</span>
+              </Link>
+            </li>
+          )}
+          {currentUser && currentUser.isAdmin && (
+            <li>
+              <Link
+                to={"/dashboard?tab=comments"}
+                className="flex items-center p-2 hover:bg-slate-300 rounded"
+              >
+                <FaComment  className="mr-3" />
+                <span>All Comments</span>
               </Link>
             </li>
           )}
